@@ -9,7 +9,9 @@ import matplotlib.pyplot as plt
 
 def clustering_results():
     # Load dataset
-    data = pd.read_csv('/workspaces/Clustering-Mini-Project/Clustering-Mini-Project/obesity_estimation_data.csv')
+
+    url = 'https://raw.githubusercontent.com/JasonObiso/Clustering-Mini-Project/main/Clustering-Mini-Project/obesity_estimation_data.csv'
+    data = pd.read_csv(url)
     X_scaled = data.drop(columns=['NObeyesdad'])  # Assuming 'NObeyesdad' is the target column
 
     # Determine optimal number of clusters
@@ -69,6 +71,15 @@ def clustering_results():
     ax3.set_ylabel('Principal Component 2')
     st.pyplot(fig3)
 
+    # Explanation for PCA
+    with st.expander("What is PCA?"):
+        st.write("""
+        Principal Component Analysis (PCA) is a dimensionality reduction technique that transforms high-dimensional data 
+        into a lower-dimensional space while preserving the most important information. It achieves this by finding the 
+        principal components, which are orthogonal vectors that represent the directions of maximum variance in the data. 
+        PCA is commonly used for visualization and data compression.
+        """)
+
     # Reduce dimensionality using t-SNE for visualization
     tsne = TSNE(n_components=2, random_state=42)
     X_tsne = tsne.fit_transform(X_scaled)
@@ -79,6 +90,16 @@ def clustering_results():
     ax4.set_xlabel('t-SNE Component 1')
     ax4.set_ylabel('t-SNE Component 2')
     st.pyplot(fig4)
+
+    # Explanation for t-SNE
+    with st.expander("What is t-SNE?"):
+        st.write("""
+        t-Distributed Stochastic Neighbor Embedding (t-SNE) is a nonlinear dimensionality reduction technique 
+        particularly well-suited for embedding high-dimensional data into low-dimensional space for visualization. 
+        It aims to preserve the local structure of the data by modeling pairwise similarities between data points 
+        in the high-dimensional space and their low-dimensional counterparts. t-SNE is commonly used to visualize 
+        clusters or groups of data points in a lower-dimensional space.
+        """)
 
     # Print counts of points in each cluster
     unique_labels, label_counts = np.unique(final_model.labels_, return_counts=True)
