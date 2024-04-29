@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 
 def clustering_results():
     # Load dataset
-
     url = 'https://raw.githubusercontent.com/JasonObiso/Clustering-Mini-Project/main/Clustering-Mini-Project/obesity_estimation_data.csv'
     data = pd.read_csv(url)
     X_scaled = data.drop(columns=['NObeyesdad'])  # Assuming 'NObeyesdad' is the target column
@@ -54,11 +53,21 @@ def clustering_results():
     separation between clusters. The optimal number of clusters is often associated with the highest average 
     silhouette score.
     """)
-
+    
     # Determine optimal number of clusters based on known obesity levels and silhouette score
-    num_clusters = 7  
+    num_clusters = 6  # Adjusted to 6 clusters
     final_model = KMeans(n_clusters=num_clusters, n_init=10, max_iter=300, random_state=42)
     final_model.fit(X_scaled)
+
+    # Define mapping of clusters to obesity levels and colors
+    cluster_info = {
+        0: {'name': 'Insufficient Weight', 'color': '#1f77b4'},  # blue
+        1: {'name': 'Normal Weight', 'color': '#ff7f0e'},         # orange
+        2: {'name': 'Overweight Level I', 'color': '#2ca02c'},   # green
+        3: {'name': 'Overweight Level II', 'color': '#d62728'},  # red
+        4: {'name': 'Obesity Type I', 'color': '#9467bd'},       # purple
+        5: {'name': 'Obesity Type II', 'color': '#8c564b'}       # brown
+    }
 
     # Visualize clusters using PCA
     pca = PCA(n_components=2, random_state=42)
@@ -101,21 +110,40 @@ def clustering_results():
         clusters or groups of data points in a lower-dimensional space.
         """)
 
-    # Print counts of points in each cluster
+    # Print counts of points in each cluster with cluster names and colors
     unique_labels, label_counts = np.unique(final_model.labels_, return_counts=True)
     for label, count in zip(unique_labels, label_counts):
-        st.write(f"Cluster {label + 1}: {count} points")
+        cluster_name = cluster_info[label]['name']
+        cluster_color = cluster_info[label]['color']
+        st.write(f"<span style='color:{cluster_color}; font-weight:bold;'>{cluster_name}</span>: {count} points", unsafe_allow_html=True)
 
     # Count occurrences of each unique value in the 'NObeyesdad' column
     value_counts = data['NObeyesdad'].value_counts()
 
+    # Filter value counts to include only relevant clusters
+    relevant_clusters = list(cluster_info.keys())  # Assuming all clusters are relevant
+    value_counts_relevant = value_counts[value_counts.index.isin(relevant_clusters)]
+
+    # Create color map for the bar plot
+    color_map = [cluster_info[i]['color'] for i in relevant_clusters]
+
+    # Map cluster labels to obesity levels
+    data['Cluster'] = final_model.labels_
+    data['Obesity Level'] = data['Cluster'].map(lambda x: cluster_info[x]['name'])
+
+    # Get value counts for each obesity level
+    obesity_level_counts = data['Obesity Level'].value_counts()
+
+    # Map cluster names to their respective colors
+    color_map = {cluster_info[i]['name']: cluster_info[i]['color'] for i in relevant_clusters}
+
     # Create bar plot
     fig5, ax5 = plt.subplots(figsize=(10, 6))
-    value_counts.plot(kind='bar', ax=ax5)
+    obesity_level_counts.plot(kind='bar', ax=ax5, color=[color_map[level] for level in obesity_level_counts.index])
     ax5.set_xlabel('Obesity Levels')
     ax5.set_ylabel('Count')
     ax5.set_title('Number of entries per Obesity Level')
-    ax5.tick_params(axis='x', rotation=0) 
+    ax5.tick_params(axis='x', rotation=45)  # Rotate x-axis labels for better readability
     plt.tight_layout()  # Adjust layout to prevent clipping of labels
     st.pyplot(fig5)
 
@@ -135,10 +163,10 @@ def clustering_results():
         ith_cluster_silhouette_values.sort()
         size_cluster_i = ith_cluster_silhouette_values.shape[0]
         y_upper = y_lower + size_cluster_i
-        color = plt.cm.nipy_spectral(float(i) / num_clusters)
-        ax6.fill_betweenx(np.arange(y_lower, y_upper), 0, ith_cluster_silhouette_values, facecolor=color,
-                          edgecolor=color, alpha=0.7)
-        ax6.text(-0.05, y_lower + 0.5 * size_cluster_i, str(i))
+        cluster_color = cluster_info[i]['color']
+        ax6.fill_betweenx(np.arange(y_lower, y_upper), 0, ith_cluster_silhouette_values, facecolor=cluster_color,
+                        edgecolor=cluster_color, alpha=0.7)
+        ax6.text(-0.05, y_lower + 0.5 * size_cluster_i, cluster_info[i]['name'], color=cluster_color)
         y_lower = y_upper + 10
     ax6.set_title("Silhouette plot for each cluster")
     ax6.set_xlabel("Silhouette score")
