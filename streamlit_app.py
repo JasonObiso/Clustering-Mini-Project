@@ -111,11 +111,18 @@ def clustering_results():
         """)
 
     # Print counts of points in each cluster with cluster names and colors
+    data_to_display = []
     unique_labels, label_counts = np.unique(final_model.labels_, return_counts=True)
     for label, count in zip(unique_labels, label_counts):
         cluster_name = cluster_info[label]['name']
         cluster_color = cluster_info[label]['color']
-        st.write(f"<span style='color:{cluster_color}; font-weight:bold;'>{cluster_name}</span>: {count} points", unsafe_allow_html=True)
+        colored_cluster_name = f"<span style='color:black;background-color:{cluster_color};padding: 4px 8px;border-radius: 4px;'>{cluster_name}</span>"
+        data_to_display.append([colored_cluster_name, count])
+
+    # Display as a table
+    st.write("Counts of points in each cluster with cluster names and colors:")
+    df_counts = pd.DataFrame(data_to_display, columns=['Cluster Name', 'Count'])
+    st.markdown(df_counts.to_html(escape=False), unsafe_allow_html=True)
 
     # Count occurrences of each unique value in the 'NObeyesdad' column
     value_counts = data['NObeyesdad'].value_counts()
