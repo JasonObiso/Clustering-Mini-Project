@@ -139,7 +139,7 @@ def clustering_results():
 
 def main():
     st.markdown("<h1 style='text-align: center;'>Obesity Risk Assessment Model</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Clustering App Mini Project | Team Tea</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Clustering App Mini Project Results | Team Tea</p>", unsafe_allow_html=True)
     clustering_results()
 
 if __name__ == "__main__":
