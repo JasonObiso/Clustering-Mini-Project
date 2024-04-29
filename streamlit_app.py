@@ -115,7 +115,6 @@ def clustering_results():
     ax5.set_xlabel('Obesity Levels')
     ax5.set_ylabel('Count')
     ax5.set_title('Number of entries per Obesity Level')
-    ax5.tick_params(axis='x', rotation=45)  # Rotate x-axis labels for better readability
     plt.tight_layout()  # Adjust layout to prevent clipping of labels
     st.pyplot(fig5)
 
